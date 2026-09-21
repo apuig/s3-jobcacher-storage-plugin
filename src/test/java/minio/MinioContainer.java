@@ -8,27 +8,27 @@ import org.testcontainers.containers.wait.strategy.Wait;
 public class MinioContainer extends GenericContainer<MinioContainer> {
 
     public MinioContainer() {
-        this("minio/minio");
+        this("rustfs/rustfs:1.0.0");
     }
 
     public MinioContainer(String dockerImageName) {
         super(dockerImageName);
 
-        setWaitStrategy(Wait.forHttp("/minio/health/ready").forStatusCode(200));
+        setWaitStrategy(Wait.forListeningPort());
 
-        withEnv("MINIO_ROOT_USER", UUID.randomUUID().toString());
-        withEnv("MINIO_ROOT_PASSWORD", UUID.randomUUID().toString());
-        withCommand("server /data");
+        withEnv("RUSTFS_ACCESS_KEY", UUID.randomUUID().toString());
+        withEnv("RUSTFS_SECRET_KEY", UUID.randomUUID().toString());
         withExposedPorts(9000);
-        withNetwork(Network.newNetwork()); // we need a dedicated network otherwise mc cannot participate
+        withNetwork(
+                Network.newNetwork()); // we need a dedicated network otherwise the aws-cli container cannot participate
     }
 
     public String accessKey() {
-        return getEnvMap().get("MINIO_ROOT_USER");
+        return getEnvMap().get("RUSTFS_ACCESS_KEY");
     }
 
     public String secretKey() {
-        return getEnvMap().get("MINIO_ROOT_PASSWORD");
+        return getEnvMap().get("RUSTFS_SECRET_KEY");
     }
 
     public String getExternalAddress() {
