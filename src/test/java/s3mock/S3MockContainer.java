@@ -1,17 +1,17 @@
-package minio;
+package s3mock;
 
 import java.util.UUID;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
 
-public class MinioContainer extends GenericContainer<MinioContainer> {
+public class S3MockContainer extends GenericContainer<S3MockContainer> {
 
-    public MinioContainer() {
+    public S3MockContainer() {
         this("rustfs/rustfs:1.0.0");
     }
 
-    public MinioContainer(String dockerImageName) {
+    public S3MockContainer(String dockerImageName) {
         super(dockerImageName);
 
         setWaitStrategy(Wait.forListeningPort());
@@ -19,8 +19,8 @@ public class MinioContainer extends GenericContainer<MinioContainer> {
         withEnv("RUSTFS_ACCESS_KEY", UUID.randomUUID().toString());
         withEnv("RUSTFS_SECRET_KEY", UUID.randomUUID().toString());
         withExposedPorts(9000);
-        withNetwork(
-                Network.newNetwork()); // we need a dedicated network otherwise the aws-cli container cannot participate
+        // explicit network so S3AdminContainer can reach this container by network alias
+        withNetwork(Network.newNetwork());
     }
 
     public String accessKey() {

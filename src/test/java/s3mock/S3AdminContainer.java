@@ -1,26 +1,26 @@
-package minio;
+package s3mock;
 
 import static java.lang.String.format;
 
 import java.io.IOException;
 import org.testcontainers.containers.GenericContainer;
 
-public class MinioMcContainer extends GenericContainer<MinioMcContainer> {
+public class S3AdminContainer extends GenericContainer<S3AdminContainer> {
 
-    private final MinioContainer minio;
+    private final S3MockContainer s3;
 
-    public MinioMcContainer(MinioContainer minio) {
+    public S3AdminContainer(S3MockContainer s3) {
         super("amazon/aws-cli:2.36.46");
-        this.minio = minio;
-        dependsOn(minio);
-        withNetwork(minio.getNetwork());
+        this.s3 = s3;
+        dependsOn(s3);
+        withNetwork(s3.getNetwork());
         withCreateContainerCmdModifier(c -> c.withTty(true).withEntrypoint("/bin/sh"));
-        withEnv("AWS_ACCESS_KEY_ID", minio.accessKey());
-        withEnv("AWS_SECRET_ACCESS_KEY", minio.secretKey());
+        withEnv("AWS_ACCESS_KEY_ID", s3.accessKey());
+        withEnv("AWS_SECRET_ACCESS_KEY", s3.secretKey());
     }
 
     private String endpointUrl() {
-        return format("http://%s:9000", minio.getNetworkAliases().get(0));
+        return format("http://%s:9000", s3.getNetworkAliases().get(0));
     }
 
     public ExecResult execSecure(String command, Object... args) throws IOException, InterruptedException {
